@@ -1,0 +1,198 @@
+{#TODO Use bootstrap#}
+<!doctype html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>right hearth catheterism dataset upload page</title>
+</head>
+
+<header style="background: black; padding: 10px">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-auto">
+                <img height="52" src="{{ url_for('static', filename='eidos_logo.png') }}">
+            </div>
+
+            <div class="col-auto">
+                <img style="margin-left: 20px" height="52" src="{{ url_for('static', filename='unito_logo.png') }}"/>
+            </div>
+        </div>
+    </div>
+</header>
+<body>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    $(document).ready(
+        function () {
+
+            $('#ctfile').change(
+                function () {
+                    if ($(this).val()) {
+                        $('#ctdate').attr('disabled', false);
+                        $('#ctdate').attr('required', true);
+                        $('#clearct').attr('disabled', false);
+                    }
+                }
+            );
+            $("input[name='aortic_calc']").change(
+                function () {
+                    if ($(this).val() === "Yes") {
+                        $('#aortic_calc_score').attr('disabled', false);
+                    } else {
+                        $('#aortic_calc_score').attr('disabled', true);
+                        $('#aortic_calc_score').attr('required', true);
+                    }
+                }
+            );
+
+            $('#clearct').click(
+                function () {
+                    $("#ctfile").val('');
+                    $('#ctdate').attr('disabled', true);
+                    $('#ctdate').attr('required', false);
+                    $('#clearct').attr('disabled', true);
+                }
+            );
+        });
+</script>
+
+<br>
+<div class="container">
+    <h1>Tavi regurgitation - Data upload</h1>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for cat, message in messages %}
+                <div class="alert {{ 'alert-success' if cat == 'success' else 'alert-danger' }}"
+                     style="text-align: center">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {#TODO Set required as needed#}
+    <form method="post" action="/" enctype="multipart/form-data">
+
+        <h4>General Information</h4>
+        <p>Please insert general information such as patiend id, birthdate</p><br>
+
+        {#        Patient id#}
+
+        <div class="form-group form-inline" id="id">
+            <label class="col-auto col-form-label" for="patient">Patient ID</label>
+            <input class="col-auto form-control mx-sm-3" type="text" id="patient" name="patient"
+                   aria-describedby="uidHelper" required>
+            <small id="uidHelper" class="col-auto text-muted">Must be alphanumeric.</small>
+        </div>
+        <br>
+
+        {#        Patient infos#}
+
+        <div class="form-row">
+            <div class="col-auto form-group form-inline">
+                <label class="col-auto col-form-label">Sex: </label>
+                <div class="col-auto form-check form-check-inline" id="sex">
+                    <input class="form-check-input" type="radio" name="sex" id="M" value="m" required>
+                    <label class="form-check-label" for="M">M</label>
+                </div>
+                <div class="col-auto form-check form-check-inline" id="sex">
+                    <input class="form-check-input" type="radio" name="sex" id="F" value="f" required>
+                    <label class="form-check-label" for="F">F</label>
+                </div>
+            </div>
+
+            <div class="col-auto form-group form-inline" id="birth">
+                <label class="col-auto col-form-label" for="birth">Birth date</label>
+                <input class="col-auto form-control  mx-sm-3" type="date" id="birth" name="birth"
+                       placeholder="DD-MM-YYYY" required>
+            </div>
+        </div>
+        <br>
+
+        {#        Images upload#}
+
+        <h4>Exams details</h4>
+        <p>Upload here exams file and tavi score</p><br>
+        <div class="form-row">
+
+
+            <div class="col form-group" id="ct">
+                <h5>CT Scans</h5>
+                <label class="col-auto col-form-label" for="ct">CT scan files</label>
+                <input type="file" id="ctfile" name="ct[]" multiple="true" autocomplete="off"><br>
+                <label class="col-auto col-form-label" for="ctdate">CT scan date</label>
+                <input type="date" id="ctdate" name="ctdate" placeholder="DD-MM-YYYY" disabled><br>
+                <button type="button" id="clearct" disabled>Clear selection</button>
+            </div>
+        </div>
+        <br>
+
+        {#        Calcium stuff#}
+
+        <div class="form-row">
+            <div class="col form-group">
+                <h5>Calcification analysis</h5>
+
+{#                TAVI#}
+
+                <div class="col-auto form-group form-inline" id="tavi">
+                    <label for="tavi">tavi Score</label>
+                    <input type="number" class="form-control  mx-sm-3" id="tavi" name="tavi" aria-describedby="taviHelper"
+                           required>
+                    <small id="taviHelper" class="text-muted">Must be numeric.</small>
+                </div>
+
+{#                Aortic valve#}
+
+
+
+{#                Mitral valve#}
+
+
+
+{#                Tricuspid  valve#}
+
+
+
+{#                Pulmonary  valve#}
+
+
+
+{#                Thoracic  aorta#}
+
+
+{#                Surgery#}
+
+
+
+            </div>
+        </div>
+        <br>
+
+        <div class="form-group" id="other">
+            <label for="other_text"></label>
+            <textarea class="form-control" id="other_text" placeholder="Additional notes..."
+                      name="other_text"></textarea>
+        </div>
+
+        <div class="form-group" id="submit">
+            <input type="submit" class="btn btn_primary" id="submit_btn" value="Submit">
+        </div>
+    </form>
+</div>
+</body>
